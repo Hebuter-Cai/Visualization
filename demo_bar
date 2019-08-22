@@ -1,0 +1,109 @@
+'''
+author@Victor_Cai
+python matplotlib.pyplot all kinds of charts
+'''
+
+
+###############1.stacked bar########
+import numpy as np
+import matplotlib.pyplot as plt
+
+N=5
+menMeans=(20,35,30,35,27)
+womenMeans=(25,32,34,20,25)
+menStd=(2,3,4,1,2)
+womenStd=(3,5,2,3,3)
+ind=np.arange(N)
+width=0.35
+
+p1=plt.bar(ind,menMeans,width,yerr=menStd)                             #第一个bar
+p2=plt.bar(ind,womenMeans,width,bottom=menMeans,yerr=womenStd)         #第二个bar，注意bottom
+
+plt.ylabel('Scores')
+plt.title('Scores by group and gender')
+plt.xticks(ind,('G1','G2','G3','G4','G5'))
+plt.yticks(np.arange(0,81,10))
+plt.legend((p1[4],p2[4]),('Men','Women'))
+
+################2.Grouped bar###############
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+
+labels=['G1','G2','G3','G4','G5']
+men_means=(20,35,30,35,27)
+women_means=(25,32,34,20,25)
+
+x=np.arange(len(labels))
+width=0.35
+
+fig,ax=plt.subplots()
+b1=ax.bar(x-width/2,men_means,width,label='Men')
+b2=ax.bar(x+width/2,women_means,width,label='Women')
+
+ax.set_ylabel('Scores')
+ax.set_title('Scores by group and gender')
+ax.set_xticks(x)
+ax.set_xticklabels(labels)
+ax.legend()
+
+def autolabel(b):
+    for a in b:
+        height=a.get_height()
+        ax.annotate('{}'.format(height),xy=(a.get_x()+a.get_width()/2,height),xytext=(0,3)
+                    ,textcoords='offset points',ha='right',va='top')
+
+autolabel(b1)
+autolabel(b2)
+fig.tight_layout()
+
+############3.Horizontal bar##############
+import numpy as np
+import matplotlib.pyplot as plt
+np.random.seed(19680801)
+
+plt.rcdefaults()  #初始化 rc参数
+fig,ax=plt.subplots()
+
+people=('Tom','Dick','Harry','Slim','Jim')
+y_pos=np.arange(len(people))
+perform=3+10*np.random.rand(len(people))
+
+error=np.random.rand(len(people))
+
+ax.barh(y_pos,perform,xerr=error,align='center')
+ax.set_yticks(y_pos)
+ax.set_yticklabels(people)
+ax.invert_yaxis()
+ax.set_xlabel('Performance')
+ax.set_title('How fast do you want to go today?')
+#ax.legend((people,(1,2,3,4,5)))
+
+##############4.broken bar############
+import matplotlib.pyplot as plt
+
+fig,ax=plt.subplots()
+ax.broken_barh([(110,30),(150,10)],(10,9),facecolors='tab:blue')
+ax.broken_barh([(10,50),(100,20),(130,10)],(20,9),facecolors=('tab:green','tab:orange','tab:red'))
+
+ax.set_ylim(5,35)
+ax.set_xlim(0,200)
+ax.set_xlabel('seconds since start')
+ax.set_yticks([15,25])
+ax.set_yticklabels(['Bill','Jim'])
+ax.grid()
+ax.annotate('race interrupted',(61,25),xytext=(0.8,0.9),textcoords='axes fraction',
+            arrowprops=dict(facecolor='black',shrink=0.05),fontsize=16,horizontalalignment='right',
+            verticalalignment='top')
+            
+#################
+
+
+
+
+
+
+
+
+
+
