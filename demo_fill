@@ -1,0 +1,84 @@
+##################1、fill()填充的点围成的区域#############
+import numpy as np
+import matplotlib.pyplot as plt
+
+def koch_snowflake(order,scale=10):
+    '''
+    return two lists x, y of point coordinates of the Koch snowflake.
+    
+    Arguments
+    -------
+    order : int
+        The recursion depth.
+    scale : float
+        The extent of the snowflake(edge length of the base triangle).
+    '''
+    def _koch_snowflake_complex(order):
+        if order == 0:
+            angles=np.array([0,120,240])+90
+            return scale/np.sqrt(3)*np.exp(np.deg2rad(angles)*1j)
+        else:
+            ZR=0.5-0.5j*np.sqrt(3)/3
+            
+            p1=_koch_snowflake_complex(order-1)
+            p2=np.roll(p1,shift=-1)
+            dp=p2-p1
+            
+            new_points=np.empty(len(p1)*4,dtype=np.complex128)
+            new_points[::4]=p1
+            new_points[1::4]=p1+dp/3
+            new_points[2::4]=p1+dp*ZR
+            new_points[3::4]=p1+dp/3*2
+            return new_points
+    
+    points=_koch_snowflake_complex(order)
+    x,y=points.real,points.imag
+    return x,y
+#
+x,y=koch_snowflake(order=5)
+plt.figure(figsize=(8,8))
+plt.fill(x,y)
+
+#
+x,y=koch_snowflake(order=2)
+fig,axes=plt.subplots(1,3,figsize=(9,3))
+axes[0].fill(x,y)
+axes[1].fill(x,y,facecolor='lightsalmon',edgecolor='orangered',linewidth=3)
+axes[2].fill(x,y,facecolor='none',edgecolor='purple',linewidth=3)
+
+
+###############2、fill_between()填充折线之间############
+import matplotlib.pyplot as plt
+import numpy as np
+
+x=np.arange(0,2,0.01)
+y1=np.sin(2*np.pi*x)
+y2=1.2*np.sin(4*np.pi*x)
+
+fig,axes=plt.subplots(4,1,sharex=True)
+
+axes[0].plot(x,y1,'r',x,y2,'b')
+axes[0].set_title('Original y1 and y2')
+axes[1].fill_between(x,0,y1)
+axes[1].set_title('between 0 and y1')
+axes[2].fill_between(x,1,y1)
+axes[2].set_title('between 1 and y1')
+axes[3].fill_between(x,y1,y2)
+axes[3].set_title('between y1 and y2')
+fig.tight_layout()
+
+
+fig,axes=plt.subplots(2,1,sharex=True)
+axes[0].plot(x,y1,x,y2,color='black')
+axes[0].fill_between(x,y1,y2,where=y2>y1,facecolor='green',interpolate=True)
+axes[0].fill_between(x,y1,y2,where=y2<y1,facecolor='red',interpolate=True)
+
+y2=np.ma.masked_greater(y2,1)
+axes[1].plot(x,y1,x,y2,color='black')
+axes[1].fill_between(x,y1,y2,where=y2>y1,facecolor='green',interpolate=True)
+axes[1].fill_between(x,y1,y2,where=y2<y1,facecolor='red',interpolate=True)
+axes[1].set_title('Now regions with y2>1 are masked')
+
+################
+
+
