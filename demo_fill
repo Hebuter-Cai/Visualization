@@ -79,6 +79,43 @@ axes[1].fill_between(x,y1,y2,where=y2>y1,facecolor='green',interpolate=True)
 axes[1].fill_between(x,y1,y2,where=y2<y1,facecolor='red',interpolate=True)
 axes[1].set_title('Now regions with y2>1 are masked')
 
-################
+################3、x与y轴互换###############
+import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib as mpl
+
+mpl.rcParams['axes.unicode_minus'] = False
+
+y=np.arange(0,2,0.01)
+x1=np.sin(2*np.pi*y)
+x2=1.2*np.sin(4*np.pi*y)
+
+fig,axes=plt.subplots(1,4,sharey=True,figsize=(8,6))
+axes[0].plot(x1,y,x2,y)
+
+axes[1].fill_betweenx(y,0,x1)
+axes[1].set_title('between x1 and 0')
+
+axes[2].fill_betweenx(y,1,x1)
+axes[2].set_title('between x1 and 1')
+
+axes[3].fill_betweenx(y,x2,x1)
+axes[3].set_title('between x1 and x2')
 
 
+y = np.arange(0.0, 2, 0.01)
+x1 = np.sin(2 * np.pi * y)
+x2 = 1.2 * np.sin(4 * np.pi * y)
+#print(x2)
+fig1,axes1=plt.subplots(1,2,sharey=True,figsize=(6,6))
+axes1[0].plot(x1,y,x2,y,color='black')
+axes1[0].fill_betweenx(y,x1,x2,where=x2>=x1,facecolor='green')
+axes1[0].fill_betweenx(y,x1,x2,where=x2<x1,facecolor='red')
+axes1[0].set_title('fill_between where')
+
+x2=np.ma.masked_greater(x2,1)
+#print(x2)
+axes1[1].plot(x1,y,x2,y,color='black')
+axes1[1].fill_betweenx(y,x1,x2,where=x2>=x1,facecolor='green')
+axes1[1].fill_betweenx(y,x1,x2,where=x2<x1,facecolor='red')
+axes1[1].set_title('regions with x2>1 are masked')
