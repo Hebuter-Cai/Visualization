@@ -1,0 +1,70 @@
+################1、scatter and text
+import numpy as np
+import matplotlib.pyplot as plt
+
+fig=plt.figure(1,figsize=(5,5))
+fig.clf()
+
+ax=fig.add_subplot(111)
+ax.set_aspect(1)  #调节图形高宽比
+
+x1=-1+np.random.randn(100)
+y1=-1+np.random.randn(100)
+x2=1+np.random.randn(100)
+y2=1+np.random.randn(100)
+
+ax.scatter(x1,y1,color='r')
+ax.scatter(x2,y2,color='g')
+
+bbox_props=dict(boxstyle='round',fc='w',ec='0.5',alpha=0.9)
+
+'''
+    以文本坐标(-2,-2)
+    ha="center"  在水平方向上，方框的中心在为（-2，0）
+    va="center"  在垂直方向上，方框的中心在为（0，-2）
+    size = '20' 代表方框的大小
+    bbox={}  代表对方框的设置
+        { 
+            boxstyle= '' 代表边框的类型
+                    round 圆形方框
+                    rarrow箭头
+            fc  背景颜色   英文首字母 w -whiite r-red
+            ec 边框线的透明度  数字或颜色的首字母
+            alpha 字体的透明度
+            lw 线的粗细
+            rotation  角度
+        }
+'''
+ax.text(-2,-2,'Sample A',ha='center',va='center',size=20,bbox=bbox_props)
+
+ax.text(2,2,'Sample B',ha='center',va='center',size=20,bbox=bbox_props)
+
+bbox_props=dict(boxstyle='rarrow',fc=(0.8,0.9,0.9),ec='b',lw=2)
+t=ax.text(0,0,'Direction',ha='center',va='center',rotation=45,size=15,bbox=bbox_props)
+
+bb=t.get_bbox_patch()   #类似补丁，可以修改bbox的属性
+bb.set_boxstyle('rarrow',pad=0.6)
+
+ax.set_xlim(-4,4)
+ax.set_ylim(-4,4)
+
+################2、text()
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatch
+
+styles=mpatch.BoxStyle.get_styles() #返回边框的集合
+spacing=1
+
+figheight=(spacing*len(styles)+3.5)
+fig1=plt.figure(1,(4/1.5,figheight))  
+ax=fig1.add_subplot(111)             #添加Axes对象，并在其上添加Text，不然在Figure对象上添加无法显示
+fontsize=0.3*72
+
+for i, stylename in enumerate(sorted(styles.keys())):
+    print(i,stylename)
+    ax.text(0.5,(spacing*(float(len(styles))-i+1.5)-0.5)/figheight,stylename,ha='center',
+              size=fontsize,transform=fig1.transFigure,
+             bbox=dict(boxstyle=stylename,fc='w',ec='k'))
+
+plt.draw()
+plt.show()
