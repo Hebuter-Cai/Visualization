@@ -1,0 +1,63 @@
+###################1、annotate()############
+import numpy as np
+import matplotlib.pyplot as plt
+
+fig=plt.figure()
+
+ax=fig.add_subplot(111)
+
+x=np.arange(0,5,0.01)
+y=np.cos(2*np.pi*x)
+
+ax.plot(x,y,lw=2)
+
+ax.annotate('local max',xy=(2,1),xytext=(3,1.5),arrowprops=dict(facecolor='black',shrink=0.05))
+
+ax.set_ylim(-2,2)
+
+###############2、 annotate()#############
+import numpy as np
+import matplotlib.pyplot as plt
+
+fig=plt.figure()
+
+ax=fig.add_subplot(111)
+
+x=np.arange(0,5,0.01)
+y=np.cos(2*np.pi*x)
+
+ax.plot(x,y,lw=2)
+
+ax.annotate('local max',xy=(3,1),xycoords='data',
+            xytext=(0.8,0.95),textcoords='axes fraction',
+            arrowprops=dict(facecolor='black',shrink=0.05),
+           horizontalalignment='right',verticalalignment='top',fontsize=10)
+
+ax.set_ylim(-2,2)
+
+'''
+| 参数 | 坐标系 | 
+| 'figure points' | 距离图形左下角的点数量 | 
+| 'figure pixels' | 距离图形左下角的像素数量 | 
+| 'figure fraction' | 0,0 是图形左下角，1,1 是右上角 | 
+| 'axes points' | 距离轴域左下角的点数量 | 
+| 'axes pixels' | 距离轴域左下角的像素数量 | 
+| 'axes fraction' | 0,0 是轴域左下角，1,1 是右上角 | 
+| 'data' | 使用轴域数据坐标系 |
+'''
+#############3、
+import matplotlib.pyplot as plt
+
+fig=plt.figure(1,figsize=(3,3))
+ax=fig.add_subplot(111)
+
+ax.annotate('annotate',xy=(0.2,0.2),xycoords='data',
+           xytext=(0.8,0.8),textcoords='data',
+           arrowprops=dict(arrowstyle='->',connectionstyle='arc3'))
+            #箭头类型                       连接类型
+
+##############4、
+
+
+
+
