@@ -57,7 +57,117 @@ ax.annotate('annotate',xy=(0.2,0.2),xycoords='data',
             #箭头类型                       连接类型
 
 ##############4、
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatch
 
+x1,y1=0.3,0.3
+x2,y2=0.7,0.7
 
+fig=plt.figure(1,figsize=(8,3))
+fig.clf()
 
+from mpl_toolkits.axes_grid.axes_grid import AxesGrid
+from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
+
+def add_at(ax,t,loc=2):
+    fp=dict(size=10)
+    _at=AnchoredText(t,loc=loc,prop=fp)    #什么意思？
+    ax.add_artist(_at)
+    return _at
+
+grid=AxesGrid(fig,111,(1,4),label_mode='1',share_all=True)  
+             #fig,窗口
+             #rect,绘图区域(left,bottom,width,height),or, a three-digit subplot position
+             #nrows_ncols,(1,4)一行4列
+             #label_mode,哪些轴的刻度标签有
+            #share_all,共享x、y轴
+            
+grid[0].set_autoscale_on(False)   #不适用自动生成的刻度范围
+
+ax=grid[0]
+ax.plot([x1,x2],[y1,y2],'.')
+el=mpatch.Ellipse((x1,y1),0.3,0.4,angle=30,alpha=0.2)   #椭圆，中心位置，短轴，长轴，旋转角度，透明度
+ax.add_artist(el)   #标准的绘图原件
+
+ax.annotate('',xy=(x1,y1),xycoords='data',xytext=(x2,y2),textcoords='data',
+           arrowprops=dict(arrowstyle='-',color='0.5',patchB=None,shrinkB=0,connectionstyle='arc3,rad=0.3',),)
+           #patchA,文本的边界组成的区域，patchB，默认为None，可以赋值
+
+add_at(ax,'connect',loc=2)
+
+#######第二个
+ax=grid[1]
+ax.plot([x1,x2],[y1,y2],'.')
+
+el=mpatch.Ellipse((x1,y1),0.3,0.4,angle=30,alpha=0.2)
+ax.add_artist(el)
+
+ax.annotate('',xy=(x1,y1),xycoords='data',
+           xytext=(x2,y2),textcoords='data',
+           arrowprops=dict(arrowstyle='-',color='0.5',patchB=el,shrinkB=0,connectionstyle='arc3,rad=0.3',),)
+
+add_at(ax,'clip',loc=2)
+
+#######第三个
+ax=grid[2]
+ax.plot([x1,x2],[y1,y2],'.')
+
+el=mpatch.Ellipse((x1,y1),0.3,0.4,angle=30,alpha=0.2)
+ax.add_artist(el)
+
+ax.annotate('',xy=(x1,y1),xycoords='data',
+           xytext=(x2,y2),textcoords='data',
+           arrowprops=dict(arrowstyle='-',color='0.5',patchB=el,shrinkB=5,connectionstyle='arc3,rad=0.3',),)
+
+add_at(ax,'shrink',loc=2)
+
+#######第四个
+ax=grid[3]
+ax.plot([x1,x2],[y1,y2],'.')
+
+el=mpatch.Ellipse((x1,y1),0.3,0.4,angle=30,alpha=0.2)
+ax.add_artist(el)
+
+ax.annotate('',xy=(x1,y1),xycoords='data',
+           xytext=(x2,y2),textcoords='data',
+           arrowprops=dict(arrowstyle='fancy',color='0.5',patchB=el,shrinkB=5,connectionstyle='arc3,rad=0.3',),)
+
+add_at(ax,'mutate',loc=2)
+
+grid[0].set_xlim(0,1)
+grid[0].set_ylim(0,1)
+grid[0].axis['bottom'].toggle(ticklabels=False)
+grid[0].axis['left'].toggle(ticklabels=False)
+
+fig.subplots_adjust(left=0.05,right=0.95,bottom=0.05,top=0.95)
+
+#注：connectstyle，连接路径，以及箭头样式多种多样
+
+##############5、anchor锚点
+
+from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
+import matplotlib.pyplot as plt
+
+fig,ax=plt.subplots()
+at=AnchoredText('Figure 1a',prop=dict(size=8),frameon=True,loc=2)
+
+at.patch.set_boxstyle('round,pad=0,rounding_size=0.2')
+ax.add_artist(at)
+
+#
+from mpl_toolkits.axes_grid.anchored_artists import AnchoredDrawingArea
+from matplotlib.patches import Circle
+import matplotlib.pyplot as plt
+
+fig=plt.figure(1,figsize=(8,6))
+ax=fig.add_subplot(111)
+
+ada=AnchoredDrawingArea(40,20,0,0,loc=1,pad=0,frameon=False)
+
+p1=Circle((10,10),10)
+ada.drawing_area.add_artist(p1)
+p2=Circle((30,10),5,fc='r')
+ada.drawing_area.add_artist(p2)
+
+ax.add_artist(ada)
 
