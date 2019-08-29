@@ -18,7 +18,168 @@ line2,=ax.plot(x,y-0.2,dashes=[6,2],label='Using the dashes parameter')
 ax.legend()
 
 
+##########2、marker and fill_style
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+
+points=np.ones(5)
+marker_style=dict(color='tab:blue',linestyle=':',marker='o',
+                 markersize=15,markerfacecoloralt='tab:red')
+
+fig,ax=plt.subplots()
+
+for y, fill_style in enumerate(Line2D.fillStyles):
+    ax.text(-0.5,y,repr(fill_style),horizontalalignment='center',
+           verticalalignment='center')
+    ax.plot(y*points,fillstyle=fill_style,**marker_style)
+    
+ax.set_axis_off()
+ax.set_title('fill style')
+
+plt.show()
+
+###########3、path
+
+import matplotlib.pyplot as plt
+import matplotlib.path as mpath
+import numpy as np
+
+star=mpath.Path.unit_regular_star(6)  #6个顶角的星星
+circle=mpath.Path.unit_circle()       #单位圆
 
 
+verts=np.concatenate([circle.vertices,star.vertices[::-1,...]])  #合并
+                                       #在行上翻转了一下
+
+codes=np.concatenate([circle.codes,star.codes])
+cut_star=mpath.Path(verts,codes)#注意：这两个参数
+
+plt.plot(np.arange(10)**2,'--r',marker=cut_star,markersize=15)
 
 
+#######4、marker_style
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+
+points=np.ones(3)
+text_style=dict(horizontalalignment='right', verticalalignment='center',
+               fontsize=12,fontdict={'family':'monospace'})
+marker_style=dict(linestyle=':',color='0.8',markersize=10,mfc='C0',mec='C0')
+
+def format_axes(ax):
+    ax.margins(0.2)
+    ax.set_axis_off() #把坐标轴关掉
+    ax.invert_yaxis()
+    
+def split_list(a_list):
+    i_half=len(a_list)//2  #取整
+    return (a_list[:i_half],a_list[i_half:])
+
+fig, axes=plt.subplots(ncols=2)
+fig.suptitle('un-filled markers', fontsize=14)
+
+unfilled_markers=[m for m, func in Line2D.markers.items() #markers,字典{符号:名称}
+                  if func!='nothing' and m not in Line2D.filled_markers] #filled_markers,部分符号
+for ax, markers in zip(axes, split_list(unfilled_markers)):
+    for y, marker in enumerate(markers):
+        ax.text(-0.5,y,repr(marker),**text_style)
+        ax.plot(y*points,marker=marker,**marker_style)
+    format_axes(ax)
+
+fig, axes=plt.subplots(ncols=2)
+for ax, markers in zip(axes,split_list(Line2D.filled_markers)):
+    for y, marker in enumerate(markers):
+        ax.text(-0.5,y,repr(marker),**text_style)
+        ax.plot(y*points,marker=marker, **marker_style)
+    format_axes(ax)
+    
+fig.suptitle('filled markers',fontsize=14)
+
+
+#############5、markevery
+import matplotlib.pyplot as plt
+import numpy as py
+import matplotlib.gridspec as gridspec
+
+cases=[None,8,(30,8),[16,24,30],[0,-1],slice(100,200,3),0.1,0.3,1.5,(0.0,1.0),(0.45,0.1)]
+
+figsize=(10,8)
+cols=3
+rows=len(cases)//cols+1
+
+delta=0.11
+x=np.linspace(0,10-2*delta,200)+delta
+y=np.sin(x)+1.0+delta
+
+def trim_axes(axes,N):
+    axes=axes.flat
+    for ax in axes[N:]:
+        ax.remove()
+    return axes[:N]
+
+fig1, axes=plt.subplots(rows,cols,figsize=figsize)
+axes=trim_axes(axes,len(cases))
+for ax, case in zip(axes,cases):
+    ax.set_title('markerevery=%s' % str(case))
+    ax.plot(x,y,'o',ls='-',ms=4,markevery=case)
+    
+fig2, axes=plt.subplots(rows,cols,figsize=figsize)
+axes=trim_axes(axes,len(cases))
+
+
+for ax, case in zip(axes, cases):
+    ax.set_title('markevery=%s' % str(case))
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    
+    ax.plot(x,y,'o',ls='-',ms=4, markevery=case)
+
+fig3, axes=plt.subplots(rows,cols,figsize=figsize)
+axes=trim_axes(axes,len(cases))
+
+for ax, case in zip(axes, cases):
+    ax.set_title('markevery=%s' % str(case))
+    ax.plot(x,y,'o',ls='-',ms=4, markevery=case)
+    ax.set_xlim((6,6.7))
+    ax.set_ylim((1.1,1.7))
+    
+    
+
+import matplotlib.pyplot as plt
+import numpy as py
+import matplotlib as mpl
+from cycler import cycler
+
+cases=[None,8,(30,8),[16,24,30],[0,-1],slice(100,200,3),0.1,0.3,1.5,(0.0,1.0),(0.45,0.1)]
+
+colors= ['#1f77b4',
+          '#ff7f0e',
+          '#2ca02c',
+          '#d62728',
+          '#9467bd',
+          '#8c564b',
+          '#e377c2',
+          '#7f7f7f',
+          '#bcbd22',
+          '#17becf',
+          '#1a55FF']
+
+#mpl.rcParams['axes.prop_cycle'] = cycler(markevery=cases, color=colors)
+
+
+x=np.linspace(0,2*np.pi)
+offsets=np.linspace(0,2*np.pi,11,endpoint=False)
+yy=np.transpose([np.sin(x+phi) for phi in offsets]) #改变序列
+
+fig = plt.figure()
+ax=fig.add_axes([0.1,0.1,0.6,0.75])
+
+for i in range(len(cases)):
+    ax.plot(yy[:,i],marker='o',label=str(cases[i]))
+    ax.legend(bbox_to_anchor=(1.05,1), loc='upper left',borderaxespad=0)
+    
+plt.title('Support for axes.prop_cycle cycler with markevery')
+   
