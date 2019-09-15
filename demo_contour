@@ -20,6 +20,217 @@ ax2.imshow(x.reshape((1,-1)),**barprops)
 #reshape(-1,1)转化为1列，reshape(-1,2)转化为2列
 
 ################2/
+import matplotlib.pyplot as plt
+import numpy as np
+
+x,y=np.meshgrid(np.arange(7),np.arange(10))
+z=np.sin(0.5*x)*np.cos(0.52*y)
+#x，y，z为10行7列
+mask=np.zeros_like(z,dtype=bool)
+mask[2,3:5]=True
+mask[3:5, 4] = True
+mask[7, 2] = True
+mask[5, 0] = True
+mask[0, 6] = True
+
+z=np.ma.array(z,mask=mask)   #即，mask中的True为masked数值，将z中相同位置转换为空
+
+corner_masks={False, True}
+fig, axes=plt.subplots(ncols=2)
+for ax, corner_mask in zip(axes, corner_masks):  #
+    cs=ax.contourf(x,y,z, corner_mask=corner_mask)
+    #contourf()可以填充等高线之间的空白
+    ax.contour(cs,colors='k')
+    #contour()只能生成等高线
+    ax.set_title('corner_mask={0}'.format(corner_mask))
+    
+    ax.grid(c='k',ls='-',alpha=0.3)
+    
+    ax.plot(np.ma.array(x,mask=~mask),y,'ro')
+
+
+
+#######################3/
+import matplotlib
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+
+delta=0.025
+x=np.arange(-3,3,delta)
+y=np.arange(-2,2,delta)
+X,Y=np.meshgrid(x,y)
+Z1=np.exp(-X**2-Y**2)
+Z2=np.exp(-(X-1)**2-(Y-1)**2)
+Z=(Z1-Z2)*2
+
+##(1)默认
+fig,ax=plt.subplots()
+CS=ax.contour(X,Y,Z)
+ax.clabel(CS,inline=1,fontsize=10)  #等高线的标签
+ax.set_title('Simple default with labels')
+
+##(2)等高线位置设置
+fig,ax=plt.subplots()
+CS=ax.contour(X,Y,Z)
+manual_locations=[(-1,-1.4),(-0.62,-0.7),(-2,0.5),(1.7,1.2),(2.0,1.4),(2.4,1.7)]
+ax.clabel(CS,inline=1,fontsize=10,manual=manual_locations)
+ax.set_title('labels at selected locations')
+
+##（3）负值等高线的线型
+fig, ax=plt.subplots()
+CS=ax.contour(X,Y,Z,6,colors='k')
+                   #levels: if int, then 等高线数量；if array-like, then 特定位置上出现等高线
+ax.clabel(CS,fontsize=9,inline=1)
+ax.set_title('Single color - negetive contours dashed')
+
+
+matplotlib.rcParams['contour.negative_linestyle']='solid'  #默认为虚线
+fig, ax=plt.subplots()
+CS=ax.contour(X,Y,Z,6,colors='k')
+ax.clabel(CS,foontsize=9,inline=1)
+ax.set_title('Single color - negative contours solid')
+
+##（4）等高线的颜色
+fig, ax =plt.subplots()
+CS=ax.contour(X,Y,Z,6,linewidths=np.arange(0.5,4,0.5),colors=('r','green','blue',
+                                                             (1,1,0),'#afeeee','0.5'))
+ax.clabel(CS,fontsize=9,inline=1)
+ax.set_title('Crazy lines')
+
+##（5）多个属性：Colorbar
+fig, ax=plt.subplots()
+im=ax.imshow(Z,interpolation='bilinear',origin='lower',cmap=cm.gray,extent=(-3,3,-2,2))
+#返回一个图像，已被填充
+levels=np.arange(-1.2,1.6,0.2)
+CS=ax.contour(Z,levels,origin='lower',cmap='flag',linewidths=2,extent=(-3,3,-2,2))
+
+zc=CS.collections[6]
+plt.setp(zc,linewidth=4)
+
+ax.clabel(CS,levels[1::2],inline=1,fmt='%1.1f',fontsize=14)
+
+CB=fig.colorbar(CS,shrink=0.8,extend='both')
+
+ax.set_title('Lines with colorbar')
+
+CBI=fig.colorbar(im,orientation='horizontal',shrink=0.8)
+
+l, b, w, h=ax.get_position().bounds  #获得绘图的left，bottom，width，height
+ll, bb, ww, hh=CB.ax.get_position().bounds
+CB.ax.set_position([ll,b+0.1*h,ww,h*0.8])
+
+###################4/origin and extent
+import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.cm as cm
+
+delta=0.5
+
+extent=(-3,4,-4,3)
+
+x=np.arange(-3,4.001,delta)
+y=np.arange(-4,3.001,delta)
+X,Y=np.meshgrid(x,y)
+Z1 = np.exp(-X**2 - Y**2)
+Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+Z = (Z1 - Z2) * 2
+
+levels=np.arange(-2,1.601,0.4)
+norm=cm.colors.Normalize(vmax=abs(Z).max(),vmin=-abs(Z).max())
+cmap=cm.PRGn
+
+fig, _axes=plt.subplots(nrows=2,ncols=2)
+fig.subplots_adjust(hspace=0.3)
+axes=_axes.flatten()
+
+cset1=axes[0].contourf(X,Y,Z,levels,norm=norm,cmap=cm.get_cmap(cmap,len(levels)-1))
+cset2=axes[0].contour(X,Y,Z,cset1.levels,colors='k')
+
+for c in cset2.collections:
+    c.set_linestyle('solid')
+
+cset3=axes[0].contour(X,Y,Z,(0,),color='g',linewidths=2)
+axes[0].set_title('Filled contours')
+fig.colorbar(cset1,ax=axes[0])
+
+axes[1].imshow(Z,extent=extent,cmap=cmap,norm=norm)
+axes[1].contour(Z,levels,colors='k',origin='upper',extent=extent)
+axes[1].set_title('Image, origin upper')
+#origin,top即[0,0]在左上,lower即[0,0]在左下
+#extent,[horizontal_min,horizontal_max,vertical_min,vertical_max]
+
+axes[2].imshow(Z,origin='lower',extent=extent,cmap=cmap,norm=norm)
+axes[2].contour(Z,levels,colors='k',origin='lower',extent=extent)
+axes[2].set_title("Image, origin 'lower'")
+
+im=axes[3].imshow(Z,interpolation='nearest',extent=extent,cmap=cmap,norm=norm)
+axes[3].contour(Z,levels,colors='k',origin='image',extent=extent)
+ylim=axes[3].get_ylim()
+axes[3].set_ylim(ylim[::-1])
+axes[3].set_title('Origin from rc, reversed y-axis')
+fig.colorbar(im,ax=axes[3])
+
+fig.tight_layout()
+
+###################5/
+import matplotlib
+import numpy as np
+import matplotlib.ticker as ticker
+import matplotlib.pyplot as plt
+
+delta = 0.025
+x = np.arange(-3.0, 3.0, delta)
+y = np.arange(-2.0, 2.0, delta)
+X, Y = np.meshgrid(x, y)
+Z1 = np.exp(-X**2 - Y**2)
+Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+Z = (Z1 - Z2) * 2
+
+class nf(float):
+    def __repr__(self):
+        s = f'{self:.1f}'
+        return f'{self:.0f}' if s[-1]=='0' else s
+
+##(1)
+fig, ax=plt.subplots()
+CS=ax.contour(X,Y,Z)
+
+CS.levels=[nf(val) for val in CS.levels]
+
+if plt.rcParams["text.usetex"]:
+    fmt=r'%r \%%'
+else:
+    fmt='%r %%'
+
+ax.clabel(CS,CS.levels,inline=True,fmt=fmt,fontsize=10)
+
+##(2)Clabel描述更改
+fig1, ax1 = plt.subplots()
+CS1 = ax1.contour(X, Y, Z)
+
+fmt={}
+strs=['first','second','third','fourth','fifth','sixth','seventh']
+
+for l, s in zip(CS1.levels,strs):
+    fmt[l]=s
+print(fmt)
+ax1.clabel(CS1, CS1.levels[::2], inline=True, fmt=fmt, fontsize=10)
+
+##(3)format
+fig2, ax2 = plt.subplots()
+
+CS2 = ax2.contour(X, Y, 100**Z, locator=plt.LogLocator())
+fmt = ticker.LogFormatterMathtext()
+fmt.create_dummy_axis()
+ax2.clabel(CS2, CS2.levels, fmt=fmt)
+ax2.set_title("$100^Z$")
+
+
+
+
+
+
 
 
 
