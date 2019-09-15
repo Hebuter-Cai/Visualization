@@ -1,0 +1,27 @@
+##########1/
+import matplotlib.pyplot as plt
+import numpy as np
+
+np.random.seed(19680801)
+x=np.random.rand(500)>0.7
+print(x)
+print(x.reshape((1,-1)))
+barprops=dict(aspect='auto',cmap='binary',interpolation='nearest')
+
+fig=plt.figure()
+ax1=fig.add_axes([0.1,0.1,0.1,0.8])
+ax1.set_axis_off()
+ax1.imshow(x.reshape((-1,1)),**barprops)
+
+ax2=fig.add_axes([0.3,0.4,0.6,0.2])
+ax2.set_axis_off()
+ax2.imshow(x.reshape((1,-1)),**barprops)
+#reshape(1,-1)转化为1行，reshape(2,-1)转化为2行，
+#reshape(-1,1)转化为1列，reshape(-1,2)转化为2列
+
+################2/
+
+
+
+
+
