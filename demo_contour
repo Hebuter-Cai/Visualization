@@ -227,7 +227,113 @@ ax2.clabel(CS2, CS2.levels, fmt=fmt)
 ax2.set_title("$100^Z$")
 
 
+#############6/
+import numpy as np
+import matplotlib.pyplot as plt
 
+origin='lower'
+delta=0.025
+x=y=np.arange(-3,3.01,delta)
+X,Y=np.meshgrid(x,y)
+Z1 = np.exp(-X**2 - Y**2)
+Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+Z = (Z1 - Z2) * 2
+
+nr,nc=Z.shape
+
+Z[-nr//6:,-nr//6:]=np.nan  #赋值为NAN
+Z=np.ma.array(Z)
+Z[:nr//6,:nc//6]=np.ma.masked  #以--替代原值
+
+interior=np.sqrt(X**2+Y**2)<0.5
+Z[interior]=np.ma.masked
+
+fig1, ax1=plt.subplots()
+CS=ax1.contourf(X,Y,Z,10,cmap=plt.cm.bone,origin=origin)
+
+CS2=ax1.contour(CS,levels=CS.levels[::2],colors='r',origin=origin)
+
+ax1.set_title('Nonsense (3 masked regions)')
+ax1.set_xlabel('word length anomaly')
+ax1.set_ylabel('sentence length anomaly')
+
+cbar=fig1.colorbar(CS)
+cbar.ax.set_ylabel('verbosity coefficient')
+cbar.add_lines(CS2)
+
+fig2, ax2=plt.subplots()
+levels=[-1.5,-1,-0.5,0,0.5,1]
+CS3=ax2.contourf(X,Y,Z,levels,colors=('r','g','b'),origin=origin,extend='both')
+CS3.cmap.set_under('yellow')
+CS3.cmap.set_over('cyan')
+
+CS4=ax2.contour(X,Y,Z,levels,colors=('k',),linewidths=(3,),origin=origin)
+ax2.set_title('Listed colors (3 masked regions)')
+ax2.clabel(CS4,fmt='%2.1f',colors='w',fontsize=14)
+
+fig2.colorbar(CS3)
+
+extends=['neither','both','min','max']
+cmap=plt.cm.get_cmap('winter')
+cmap.set_under('magenta')
+cmap.set_over('yellow')
+
+fig, axes=plt.subplots(2,2)
+for ax, extend in zip(axes.ravel(),extends):
+    cs=ax.contourf(X,Y,Z,levels,cmap=cmap,extend=extend,origin=origin)
+    fig.colorbar(cs,ax=ax,shrink=0.9)
+    ax.locator_params(nbins=4)  #控制x、y轴的刻度数量
+    ax.set_title('extend='+extend)
+
+#################7/
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(-3, 5, 150).reshape(1, -1)
+y = np.linspace(-3, 5, 120).reshape(-1, 1)
+z = np.cos(x) + np.sin(y)
+
+x,y=x.flatten(), y.flatten()
+##(1)
+fig1, ax1=plt.subplots()
+cs=ax1.contourf(x,y,z,hatches=['-','/','\\','//'],cmap='gray',extend='both',alpha=0.5)
+#填充类型自定义
+fig1.colorbar(cs)
+
+##(2)
+fig2, ax2=plt.subplots()
+n_levels=6
+ax2.contour(x,y,z,n_levels,colors='black',linestyle='-')
+cs=ax2.contourf(x,y,z,n_levels,colors='none',
+               hatches=['.','/','\\',None,'\\\\','*'],extend='lower')
+artists, labels=cs.legend_elements()  #返回绘画对象以及名称
+ax2.legend(artists,labels,handleheight=2)
+
+#################8/
+import matplotlib.pyplot as plt
+import numpy as np
+from numpy import ma
+from matplotlib import ticker, cm   #ticker:刻度，cm:colormap
+
+N = 100
+x = np.linspace(-3.0, 3.0, N)
+y = np.linspace(-2.0, 2.0, N)
+
+X, Y=np.meshgrid(x,y)
+
+Z1 = np.exp(-(X)**2 - (Y)**2)
+Z2 = np.exp(-(X * 10)**2 - (Y * 10)**2)
+z = Z1 + 50 * Z2
+
+z[:5,:5]=-1
+z=ma.masked_where(z<=0,z)#c除了上述范围之外的
+
+fig, ax=plt.subplots()
+cs=ax.contourf(X,Y,z,locator=ticker.LogLocator(),cmap=cm.PuBu_r)
+cbar=fig.colorbar(cs)
+
+
+###########9/
 
 
 
