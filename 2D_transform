@@ -38,3 +38,18 @@ do_plot(ax3,Z,mtransforms.Affine2D().scale(-1,0.5)) #缩放
 
 do_plot(ax4,Z,mtransforms.Affine2D().rotate_deg(30).skew_deg(30,15).scale(-1,0.5).translate(0.5,-1))
                                                                           #translate平移
+
+################2/用圆形剪切图片
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+import matplotlib.cbook as cbook
+
+with cbook.get_sample_data(r'C:\Users\Administrator\one.jpg') as image_file:
+    image=plt.imread(image_file)
+    
+fig, ax=plt.subplots()
+im=ax.imshow(image)
+patch=patches.Circle((260,200),radius=200,transform=ax.transData)
+im.set_clip_path(patch)
+ax.axis('off')
+
