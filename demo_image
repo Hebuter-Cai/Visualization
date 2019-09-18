@@ -329,3 +329,128 @@ fig.suptitle('imshow, with out-of-range and maskd data')
 
 
 
+################6/NonUniformImage
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.image import NonUniformImage
+from matplotlib import cm
+
+interp='nearest'
+
+x=np.linspace(-4,4,9)
+
+x2=x**3
+
+y=np.linspace(-4,4,9)
+z=np.sqrt(x[np.newaxis,:]**2+y[:,np.newaxis]**2)
+#x[np.newaxis,:]--一行；y[:,np.newaxis]--一列
+
+fig,axes=plt.subplots(nrows=2,ncols=2)
+fig.suptitle('NonUniformImage class',fontsize='large')
+ax=axes[0,0]
+im=NonUniformImage(ax,interpolation=interp,extent=(-4,4,-4,4),
+                  cmap=cm.Purples)
+im.set_data(x,y,z)
+ax.images.append(im)
+ax.set_xlim(-4,4)
+ax.set_ylim(-4,4)
+ax.set_title(interp)
+
+ax=axes[0,1]
+im=NonUniformImage(ax,interpolation=interp,extent=(-64,64,-4,4),cmap=cm.Purples)
+im.set_data(x,y,z)
+ax.images.append(im)
+ax.set_xlim(-64,64)
+ax.set_ylim(-4,4)
+ax.set_title(interp)
+
+interp='bilinear'
+ax=axes[1,0]
+im=NonUniformImage(ax,interpolation=interp,extent=(-4,4,-4,4),cmap=cm.Purples)
+im.set_data(x,y,z)
+ax.images.append(im)
+ax.set_xlim(-4,4)
+ax.set_ylim(-4,4)
+ax.set_title(interp)
+
+ax = axes[1, 1]
+im = NonUniformImage(ax, interpolation=interp, extent=(-64, 64, -4, 4),
+                     cmap=cm.Purples)
+im.set_data(x2, y, z)
+ax.images.append(im)
+ax.set_xlim(-64, 64)
+ax.set_ylim(-4, 4)
+ax.set_title(interp)
+
+####################7 transparency
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
+
+def normal_pdf(x,mean,var):
+    return np.exp(-(x-mean)**2/(2*var))
+
+xmin, xmax, ymin, ymax=(0,100,0,100)
+n_bins=100
+xx=np.linspace(xmin,xmax,n_bins)
+yy=np.linspace(ymin,xmax,n_bins)
+
+means_high=[20,50]
+means_low=[50,60]
+var=[150,200]
+
+gauss_x_high=normal_pdf(xx,means_high[0],var[0])
+gauss_y_high=normal_pdf(yy,means_high[1],var[0])
+
+gauss_x_low=normal_pdf(xx,means_low[0],var[1])
+gauss_y_low=normal_pdf(yy,means_low[1],var[1])
+
+weights_high=np.array(np.meshgrid(gauss_x_high,gauss_y_high)).prod(0)
+weights_low=-1*np.array(np.meshgrid(gauss_x_low,gauss_y_low)).prod(0)
+
+weights=weights_high+weights_low
+
+greys=np.full((*weights.shape,3),70,dtype=np.uint8)#用70填充的shape*3的新数组
+
+vmax=np.abs(weights).max()
+vmin=-vmax
+cmap=plt.cm.RdYlBu
+
+fig,ax=plt.subplots()
+ax.imshow(greys)
+ax.imshow(weights,extent=(xmin,xmax,ymin,ymax),cmap=cmap)
+ax.set_axis_off()
+
+##（2）
+alpha=np.ones(weights.shape)
+alpha[:,30:]=np.linspace(1,0,70)
+
+colors=Normalize(vmin,vmax,clip=True)(weights)
+colors=cmap(colors)
+colors[...,-1]=alpha  #？？？？？？？？？？
+
+fig,ax=plt.subplots()
+ax.imshow(greys)
+ax.imshow(colors,extent=(xmin,xmax,ymin,ymax))
+ax.set_axis_off()
+
+##（3）
+alpha=Normalize(0,0.3,clip=True)(np.abs(weights))
+alpha=np.clip(alpha,0.4,1)  #0.4~1之间的数据将会被剪掉
+
+colors=Normalize(vmin,vmax)(weights)
+colors=cmap(colors)
+
+colors[...,-1]=alpha
+
+fig,ax=plt.subplots()
+ax.imshow(greys)
+ax.imshow(colors,extent=(xmin,xmax,ymin,ymax))
+
+ax.contour(weights[::-1],levels=[-0.1,0.1],colors='k',linestyles='-')
+                 #翻转weights
+ax.set_axis_off()
+
+ax.contourf(weights[::-1],levels=[-0.0001,0.0001],colors='k',linestyles='-')
+ax.set_axis_off()
+
