@@ -454,3 +454,51 @@ ax.set_axis_off()
 ax.contourf(weights[::-1],levels=[-0.0001,0.0001],colors='k',linestyles='-')
 ax.set_axis_off()
 
+###############8/
+import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(19680801)
+
+X=10*np.random.rand(5,3)
+
+fig, ax=plt.subplots()
+ax.imshow(X,interpolation='nearest')
+numrows, numcols=X.shape
+
+def format_coord(x,y):
+    col=int(x+0.5)
+    row=int(y+0.5)
+    if col>=0 and col<numcols and row>=0 and row<numrows:
+        z=X[row,col]
+        return 'x=%1.4f, y=%1.4f, z=%1.4f'%(x,y,z)
+    else:
+        return 'x=%1.4f, y=%1.4f'%(x,y)
+
+ax.format_coord=format_coord
+
+
+###############9/imshow  and interpolation
+import matplotlib.pyplot as plt
+import numpy as np
+
+methods= [None, 'none', 'nearest', 'bilinear', 'bicubic', 'spline16',
+           'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
+           'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos']
+
+np.random.seed(19680801)
+
+grid=np.random.rand(4,4)
+
+fig, axes=plt.subplots(nrows=3, ncols=6, figsize=(9,6),subplot_kw={'xticks':[],'yticks':[]})
+
+for ax, interp in zip(axes.flat, methods):
+    ax.imshow(grid,interpolation=interp, cmap='viridis')
+    ax.set_title(str(interp))
+    
+plt.tight_layout()
+
+
+#############10/
+
+
