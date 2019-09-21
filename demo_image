@@ -499,6 +499,143 @@ for ax, interp in zip(axes.flat, methods):
 plt.tight_layout()
 
 
-#############10/
+#############10/colorbar
+from matplotlib import colors
+import matplotlib.pyplot as plt
+import numpy as np
+
+np.random.seed(19680801)
+Nr = 3
+Nc = 2
+cmap = "cool"
+
+fig, axs = plt.subplots(Nr, Nc)
+fig.suptitle('Multiple images')
+
+images = []
+for i in range(Nr):
+    for j in range(Nc):
+        # Generate data with a range that varies from one plot to the next.
+        data = ((1 + i + j) / 10) * np.random.rand(10, 20) * 1e-6
+        images.append(axs[i, j].imshow(data, cmap=cmap))
+        axs[i, j].label_outer()
+
+# Find the min and max of all colors for use in setting the color scale.
+vmin = min(image.get_array().min() for image in images)
+vmax = max(image.get_array().max() for image in images)
+norm = colors.Normalize(vmin=vmin, vmax=vmax)
+for im in images:
+    im.set_norm(norm)
+
+    #添加同一个colorbar
+position=fig.add_axes([0.15, 0.05, 0.7, 0.03])
+cbar=fig.colorbar(images[1], cax=position, orientation='horizontal')
+
+def update(changed_image):
+    for im in images:
+        if (changed_image.get_cmap()!=im.get_cmap() or changed_image.get_clim()!=im.get_clim()):
+            im.set_cmap(changed_image.get_cmap())
+            im.set_clim(changed_image.get_clim())
+            
+for im in images:
+    im.callbacksSM.connect('changed',update)
+    
+####################11 pcolor  pcolormesh imshow  pcolorfast
+##(1) pcolor
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import LogNorm
+
+Z=np.random.rand(6,10)
+
+fig, (ax0, ax1)=plt.subplots(2,1)
+
+c=ax0.pcolor(Z)
+ax0.set_title('default: no edges')
+
+c=ax1.pcolor(Z, edgecolors='k',linewidths=4)
+ax1.set_title('thick edges')
+
+fig.tight_layout()
+
+##(2) others
+dx, dy=0.15,0.05
+
+y, x=np.mgrid[slice(-3,3+dy,dy),slice(-3,3+dx,dx)]
+z=(1-x/2+x**5+y**3)*np.exp(-x**2-y**2)
+
+z=z[:-1,:-1]
+z_min, z_max=-np.abs(z).max(),np.abs(z).max()
+
+fig, axes=plt.subplots(2,2)
+
+ax=axes[0,0]
+c=ax.pcolor(x,y,z,cmap='RdBu',vmin=z_min,vmax=z_max)
+ax.set_title('pcolor')
+fig.colorbar(c,ax=ax)
+
+ax=axes[0,1]
+c=ax.pcolormesh(x,y,z,cmap='RdBu',vmin=z_min,vmax=z_max)
+ax.set_title('pcolormesh')
+fig.colorbar(c,ax=ax)
+
+ax=axes[1,0]
+c=ax.imshow(z,cmap='RdBu',vmin=z_min,vmax=z_max,extent=[x.min(),x.max(),y.min(),y.max()],
+           interpolation='nearest',origin='lower')
+ax.set_title('image (nearest)')
+fig.colorbar(c,ax=ax)
+
+ax=axes[1,1]
+c=ax.pcolorfast(x,y,z,cmap='RdBu',vmin=z_min,vmax=z_max)
+ax.set_title('pcolorfast')
+fig.colorbar(c,ax=ax)
+
+##(3)LogNorm
+N=100
+X,Y=np.mgrid[-3:3:complex(0,N),-2:2:complex(0,N)] #100*100
+
+Z1=np.exp(-(X)**2-(Y)**2)
+Z2 = np.exp(-(X * 10)**2 - (Y * 10)**2)
+Z = Z1 + 50 * Z2
+
+fig, (ax0,ax1)=plt.subplots(2,1)
+
+c=ax0.pcolor(X,Y,Z,norm=LogNorm(vmin=Z.min(),vmax=Z.max()),cmap='PuBu_r')
+fig.colorbar(c,ax=ax0)
+
+c=ax1.pcolor(X,Y,Z,cmap='PuBu_r')
+fig.colorbar(c,ax=ax1)
+
+
+#############11 pcolormesh  colorbar
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.colors import BoundaryNorm
+from matplotlib.ticker import MaxNLocator
+import numpy as np
+
+dx, dy=0.05, 0.05
+y,x= np.mgrid[slice(1, 5 + dy, dy),
+                slice(1, 5 + dx, dx)]
+
+z=np.sin(x)**10+np.cos(10+y*x)*np.cos(x)
+z=z[:-1,:-1]
+levels=MaxNLocator(nbins=15).tick_values(z.min(),z.max())
+
+cmap=plt.get_cmap('PiYG')
+norm=BoundaryNorm(levels,ncolors=cmap.N,clip=True)
+
+fig,(ax0,ax1)=plt.subplots(nrows=2)
+
+im=ax0.pcolormesh(x,y,z,cmap=cmap,norm=norm)
+fig.colorbar(im,ax=ax0)
+ax0.set_title('pcolormesh with levels')
+
+cf=ax1.contourf(x[:-1,:-1]+dx/2,y[:-1,:-1]+dy/2,z,levels=levels,cmap=cmap)
+
+fig.colorbar(cf,ax=ax1)
+ax1.set_title('contouf with levels')
+
+fig.tight_layout()
 
 
