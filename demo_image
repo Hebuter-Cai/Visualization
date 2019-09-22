@@ -638,4 +638,32 @@ ax1.set_title('contouf with levels')
 
 fig.tight_layout()
 
+############################# pcolormesh() and cmap with masked_data
+import copy
+from matplotlib import cm, pyplot as plt
+import numpy as np
 
+n=12
+x=np.linspace(-1.5,1.5,n)
+y=np.linspace(-1.5,1.5,n*2)
+X, Y=np.meshgrid(x,y)
+Qx=np.cos(Y)-np.cos(X)
+Qz=np.sin(Y)+np.sin(X)
+Z=np.sqrt(X**2+Y**2)/5
+Z=(Z-Z.min())/(Z.max()-Z.min())
+
+Zm=np.ma.masked_where(np.abs(Qz)<0.5*np.max(Qz),Z)
+
+fig, axes=plt.subplots(nrows=1,ncols=3)
+axes[0].pcolormesh(Qx,Qz,Z,shading='gouraud')
+axes[0].set_title('Without masked values')
+
+cmap=copy.copy(cm.get_cmap(plt.rcParams['image.cmap']))
+cmap.set_bad('y',1.0)
+axes[1].pcolormesh(Qx,Qz,Zm,shading='gouraud',cmap=cmap)
+axes[1].set_title('With masked values')
+
+axes[2].pcolormesh(Qx,Qz,Zm,shading='gouraud')  #未按照要求变成透明色？？？？？
+axes[2].set_title('With masked values')
+
+fig.tight_layout()
