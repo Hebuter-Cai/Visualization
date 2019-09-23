@@ -1,0 +1,56 @@
+###########1/ A Simple Demo of QUIVER
+import matplotlib.pyplot as plt
+import numpy as np
+
+X=np.arange(-10,10,1)
+Y=np.arange(-10,10,1)
+U, V=np.meshgrid(X,Y)
+#len(X),len(Y)是U or V 的行和列
+
+fig, ax=plt.subplots()
+q=ax.quiver(X,Y,U,V)
+#X,Y ：箭头位置坐标
+#U,V：箭头数据
+#C:箭头的颜色
+#units：箭头尺寸单位
+#angles：'uv'-箭头的纵横比,'xy'-箭头从（x，y）指向（x+u,y+v）
+#scale：图像的比例尺，scale_units比例尺单位
+#width:箭杆的宽度，headwidth：头部宽度，headlength：头部长度
+#minshaft:
+ax.quiverkey(q,X=0.3,Y=1.1,U=10,label='Quiver key, length=10',labelpos='E')
+
+##############2/
+##(1)
+import matplotlib.pyplot as plt
+import numpy as np
+
+X, Y=np.meshgrid(np.arange(0,2*np.pi,0.2),np.arange(0,2*np.pi,0.2))
+U=np.cos(X)
+V=np.sin(Y)
+
+fig1, ax1=plt.subplots()
+ax1.set_title('Arrows scale with plot width, not view')
+Q=ax1.quiver(X,Y,U,V,units='width')
+qk=ax1.quiverkey(Q,0.9,0.9,2,r'$2 \frac{m}{s}$',labelpos='E',coordinates='figure') #右上角的箭头
+
+##(2)
+fig2, ax2=plt.subplots()
+ax2.set_title("pivot='mid'; every third arrow; units='inches'")
+Q=ax2.quiver(X[::3,::3],Y[::3,::3],U[::3,::3],V[::3,::3],pivot='mid',units='inches')
+qk=ax2.quiverkey(Q,0.9,0.9,1,r'$1 \frac{m}{s}$',labelpos='E',coordinates='figure')
+ax2.scatter(X[::3, ::3], Y[::3, ::3], color='r', s=5)
+
+##(3)
+fig3, ax3=plt.subplots()
+ax3.set_title("pivot='tip';scales with x view")
+M=np.hypot(U,V) #得到三角形的斜边
+Q=ax3.quiver(X,Y,U,V,M,units='x',pivot='tip',width=0.022,scale=1/0.15)
+qk = ax3.quiverkey(Q, 0.9, 0.9, 1, r'$1 \frac{m}{s}$', labelpos='E',
+                   coordinates='figure')
+ax3.scatter(X,Y,color='0.5',s=1)
+
+
+
+
+
+
