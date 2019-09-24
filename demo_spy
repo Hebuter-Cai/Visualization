@@ -1,0 +1,22 @@
+######################1/
+'''
+在二维数组上绘制稀疏模式
+'''
+fig, axes=plt.subplots(2,2)
+ax1=axes[0,0]
+ax2=axes[0,1]
+ax3=axes[1,0]
+ax4=axes[1,1]
+
+x=np.random.randn(20,20)
+x[5,:]=0
+x[:,12]=0
+
+ax1.spy(x,markersize=3)
+ax2.spy(x,precision=0.1,markersize=5)
+#x:data to be plotted
+#precision:control the data to be plotted, which are >precision
+#origin: [0,0] is in the left upper(default) or in the lower left
+#aspect
+ax3.spy(x)
+ax4.spy(x,precision=0.1)
