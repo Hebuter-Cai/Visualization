@@ -1,0 +1,158 @@
+'''
+在三角形非结构网格绘制等值线，tricontour
+在三角形非结构网格绘制等值线填充图，tricontourf
+绘制非结构三角形网格伪彩色图，tricolor
+绘制非结构三角形网格电线图
+'''
+##############1/tricontour and tricontourf
+import matplotlib.pyplot as plt
+import matplotlib.tri as tri
+import numpy as np
+
+n_angles=48
+n_radii=8
+min_radius=0.25
+radii=np.linspace(min_radius,0.95,n_radii)
+
+angles=np.linspace(0,2*np.pi,n_angles,endpoint=False)  #1列48行
+angles=np.repeat(angles[...,np.newaxis],n_radii,axis=1)  
+#newaxis,新增加一个维度
+#repeat,axis=1，按照行重复，48行8列，每一列都等于之前的行值（仅一个）
+angles[:,1::2]+=np.pi/n_angles
+
+x=(radii*np.cos(angles)).flatten()  #捋平成一维
+y=(radii*np.sin(angles)).flatten()
+z=(np.cos(radii)*np.cos(3*angles)).flatten()
+
+triang=tri.Triangulation(x,y)  #类似于空间划分的方法
+
+triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
+                         y[triang.triangles].mean(axis=1))<min_radius)
+fig1, ax1=plt.subplots()
+ax1.set_aspect('equal')
+tcf=ax1.tricontourf(triang,z)
+fig1.colorbar(tcf)
+ax1.tricontour(triang,z,color='k')
+ax1.set_title('Contour plot of Delaunay triangulation')
+
+############2/
+from matplotlib.tri import Triangulation, TriAnalyzer, UniformTriRefiner
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np
+
+def experiment_res(x,y):
+    x=2*x
+    r1=np.sqrt((0.5-x)**2+(0.5-y)**2)
+    theta1=np.arctan2(0.5-x,0.5-y)  #反三角函数
+    r2=np.sqrt((-x-0.2)**2+(-y-0.2)**2)
+    theta2=np.arctan2(-x-0.2,-y-0.2)
+    z = (4 * (np.exp((r1/10)**2) - 1) * 30 * np.cos(3 * theta1) +
+         (np.exp((r2/10)**2) - 1) * 30 * np.cos(5 * theta2) +
+         2 * (x**2 + y**2))
+    return (np.max(z)-z)/(np.max(z)-np.min(z))
+
+n_test=200
+subdiv=3
+init_mask_frac=0
+min_circle_ratio=0.01
+
+random_gen=np.random.RandomState(seed=19680801)
+x_test=random_gen.uniform(-1,1,size=n_test)
+y_test=random_gen.uniform(-1,1,size=n_test)
+z_test=experiment_res(x_test,y_test)
+
+tri=Triangulation(x_test,y_test)
+ntri=tri.triangles.shape[0]
+
+mask=TriAnalyzer(tri).get_flat_tri_mask(min_circle_ratio)
+tri.set_mask(mask)
+
+refiner=UniformTriRefiner(tri)
+tri_refi, z_test_refi=refiner.refine_field(z_test, subdiv=subdiv)  #？？？
+
+z_expected=experiment_res(tri_refi.x,tri_refi.y)
+
+flat_tri=Triangulation(x_test,y_test)
+flat_tri.set_mask(~mask)
+
+plot_tri=True
+plot_masked_tri=True
+plot_refi_tri=False
+plot_expected=False
+
+levels=np.arange(0,1,0.025)
+cmap=cm.get_cmap(name='Blues',lut=None)
+
+fig, ax=plt.subplots()
+ax.set_aspect('equal')
+ax.set_title("Filtering a Delaunay mesh\n" +
+          "(application to high-resolution tricontouring)")
+
+ax.tricontour(tri_refi,z_test_refi,levels=levels,cmap=cmap,linewidths=[2,0.5,1,0.5])
+
+if plot_expected:
+    ax.tricontourf(tri_refi,z_expected,levels=levels,cmap=cmap,linewidths='--')
+
+if plot_refi_tri:
+    ax.triplot(tri_refi,color='green')
+    
+if plot_tri:
+    ax.triplot(tri,color='0.7')
+    
+if plot_masked_tri:
+    ax.triplot(flat_tri,color='red')
+    
+    
+#############3/
+import matplotlib.tri as tri
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np
+
+def function_z(x,y):
+    r1 = np.sqrt((0.5 - x)**2 + (0.5 - y)**2)
+    theta1 = np.arctan2(0.5 - x, 0.5 - y)
+    r2 = np.sqrt((-x - 0.2)**2 + (-y - 0.2)**2)
+    theta2 = np.arctan2(-x - 0.2, -y - 0.2)
+    z = -(2 * (np.exp((r1 / 10)**2) - 1) * 30. * np.cos(7. * theta1) +
+          (np.exp((r2 / 10)**2) - 1) * 30. * np.cos(11. * theta2) +
+          0.7 * (x**2 + y**2))
+    return (np.max(z) - z) / (np.max(z) - np.min(z))
+
+n_angles=20
+n_radii=10
+min_radius=0.15
+radii=np.linspace(min_radius,0.95,n_radii)
+
+angles=np.linspace(0,2*np.pi,n_angles,endpoint=False)
+angles=np.repeat(angles[...,np.newaxis],n_radii,axis=1)
+angles[:,1::2]+=np.pi/n_angles
+
+x = (radii * np.cos(angles)).flatten()
+y = (radii * np.sin(angles)).flatten()
+z = function_z(x, y)
+
+triang = tri.Triangulation(x, y)
+
+# Mask off unwanted triangles.
+triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
+                         y[triang.triangles].mean(axis=1))
+                < min_radius)
+
+refiner = tri.UniformTriRefiner(triang)
+tri_refi, z_test_refi = refiner.refine_field(z, subdiv=3)
+
+fig, ax = plt.subplots()
+ax.set_aspect('equal')
+ax.triplot(triang, lw=0.5, color='white')
+
+levels = np.arange(0., 1., 0.025)
+cmap = cm.get_cmap(name='terrain', lut=None)
+
+tcf=ax.tricontourf(tri_refi, z_test_refi, levels=levels, cmap=cmap)
+ax.tricontour(tri_refi, z_test_refi, levels=levels,
+               colors=['0.25', '0.5', '0.5', '0.5', '0.5'],
+               linewidths=[1.0, 0.5, 0.5, 0.5, 0.5])
+fig.colorbar(tcf)
+ax.set_title("High-resolution tricontouring")
